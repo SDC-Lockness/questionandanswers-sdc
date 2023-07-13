@@ -1,0 +1,23 @@
+{
+  "name": "questionandanswers-sdc",
+  "version": "1.0.0",
+  "description": "backend for questions and answers portion of e-commerce site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SDC-Lockness/questionandanswers-sdc.git"
+  },
+  "author": "Oscar Carvente",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SDC-Lockness/questionandanswers-sdc/issues"
+  },
+  "homepage": "https://github.com/SDC-Lockness/questionandanswers-sdc#readme",
+  "dependencies": {
+    "pg": "^8.11.1",
+    "postgres": "^3.3.5"
+  }
+}
