@@ -46,8 +46,7 @@ client.connect()
 console.log(res);
 res().then(res => {
   console.log('resolved and ending');
-  client.end()
 }
 ).catch(err => console.log('did not resolve, ', err));
-
+client.end();
 exports.client = client;

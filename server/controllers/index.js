@@ -1,1 +1,1 @@
-exports.movies = require('./qandas.js');
+exports.qandas = require('./qandas.js');
