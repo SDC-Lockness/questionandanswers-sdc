@@ -1,43 +1,20 @@
 var models = require('../models');
 
 module.exports = {
+  //GET /qa/questions Retrieves a list of questions for a random product. This list does not include any reported questions.
   get: function (req, res) {
-    models.movies.getAll((err, results) => {
-      if (err) {
-        res.status(401);
-      } else {
-        res.send(results);
-      }
-    });
+    const {product_id, page, count } = req.query;
+    models.qandas.getAllQuestions(product_id)
+      .then(result => res.send(result))
+      .catch(err => console.log('did not work, ', err));
+
   },
-  //   models.movies.getAll((err, result) => {
-  //     if (err) {
-  //       res.status(401);
-  //     } else {
-  //       res.send(result);
-  //     }
-  //   });
-  // }, // a function which handles a get request for all messages
+
   post: function (req, res) {
-    console.log('this is what you,', req.body);
-    var params = [req.body['title']];
-    models.movies.create(params, (err, result) => {
-      if(err) {
-        res.status(401);
-      } else {
-        res.send(result.id);
-      }
-    });
+
   },
   patch: function (req, res) {
-    var params = [req.body['title'], req.body['watched']];
-    models.movies.update(params, (err, result) => {
-      if (err) {
-        res.status(401);
-      } else {
-        res.send(result);
-      }
-    });
+
   }
 
 
