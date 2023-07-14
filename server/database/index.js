@@ -32,10 +32,10 @@ client.connect()
   // await client.query('CREATE TABLE product (id int primary key, name varchar(200), slogan text, description text, category varchar(200), default_price int)');
   // await client.query(`COPY product (id,name,slogan,description,category,default_price)FROM '${productFile}' DELIMITER ','
   // CSV HEADER`);
-  // await client.query('DROP TABLE IF EXISTS questions cascade');
-  // await client.query('CREATE TABLE questions (id int primary key, product_id int references product (id), body text, date_written bigint, asker_name varchar(200), asker_email varchar(200), reported int, helpful int)');
-  // await client.query(`COPY questions (id,product_id,body,date_written,asker_name, asker_email, reported, helpful)FROM '${questionsFile}' DELIMITER ','
-  // CSV HEADER`);
+  await client.query('DROP TABLE IF EXISTS questions cascade');
+  await client.query('CREATE TABLE questions (question_id int primary key, product_id int references product (id), question_body text, date_written bigint, asker_name varchar(200), asker_email varchar(200), reported int, question_helpfulness int)');
+  await client.query(`COPY questions (question_id,product_id,question_body,date_written,asker_name, asker_email, reported, question_helpfulness)FROM '${questionsFile}' DELIMITER ','
+  CSV HEADER`);
   // console.log(answersFile);
   // await client.query('DROP TABLE IF EXISTS answers cascade');
   // await client.query('CREATE TABLE answers (id int primary key, question_id int references questions (id), body text, date_written bigint, answerer_name varchar(200), answerer_email varchar(200), reported int, helpful int)');

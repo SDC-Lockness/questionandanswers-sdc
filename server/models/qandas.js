@@ -2,7 +2,7 @@ var db = require('../database');
 
 module.exports = {
   getAllQuestions: async function (id) {
-      var queryString = 'Select * FROM questions where reported = 0 and product_id = $1';
+      var queryString = 'Select * FROM questions where reported = 0 and product_id = $1' ;
       var values = [id];
       let result = await db.client.query(queryString, values);
       result = result.rows;
