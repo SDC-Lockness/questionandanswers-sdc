@@ -3,9 +3,9 @@ var router = require('express').Router();
 
 //Connect controller methods to their corresponding routes
 //GET /qa/questions
-router.get('/questions', controller.qandas.get );
+router.get('/questions', controller.qandas.getQuestions );
 //GET /qa/questions/:question_id/answers
-router.get('/questions/:question_id/answers', );
+router.get('/questions/:question_id/answers', controller.qandas.getAnswers);
 //POST /qa/questions
 router.post('/questions', );
 //POST /qa/questions/:question_id/answers
