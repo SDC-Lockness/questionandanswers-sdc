@@ -3,30 +3,52 @@ var db = require('../database');
 module.exports = {
   getRandomProduct: async function() {
     var queryString = 'SELECT * FROM product WHERE id >= (SELECT floor(random() * (SELECT max(id) FROM product))) ORDER BY id LIMIT 1';
-
     const result = await db.client.query(queryString);
-    console.log('this is the result from query, ', result);
     return result;
   },
 
-  getQuestions: async function (product_id) {
-      // var queryString = 'Select * FROM questions where reported = 0 and product_id = $1' ;
-      var queryString = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness, reported FROM questions WHERE reported=0 AND product_id = $1';
-      //Execution Time: 2119.579 ms
-      var values = [product_id];
-      let questions = await db.client.query(queryString, values);
-      let answers = await grabAsnwers(questions.rows);
+  getFormattedQuestions: async function (product_id, page, count) {
+      let questions = await this.getQuestions(product_id);
+      console.log(questions);
+      let answers = await grabAsnwers(questions);
       let photos = await grabPhotos(answers);
-      return formatQuestions(questions.rows, answers, photos, product_id);
+      var results = formatQuestions(questions, answers, photos, product_id);
+      page = page || 1;
+      count = count || 5;
+      results = results.slice((page-1)*count,page*count);
+
+      return {product_id: product_id, results: results};
 
   },
 
+  getFormattedAnswers: async function(question_id, page, count) {
+    let answers = await this.getAnswers(question_id);
+    console.log(answers);
+    let photos = await grabPhotos(answers);
+    let results = formatAnswers(answers, photos);
+    page = page || 1;
+    count = count || 5;
+    results.slice((page-1)*count,page*count);
+    return {
+      question:question_id,
+      page: page,
+      count: count,
+      results: results
+    }
+  },
 
+  getQuestions: async function (product_id)  {
+    var queryString = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness, reported FROM questions WHERE reported=0 AND product_id = $1';
+      //Execution Time: 2119.579 ms
+      var values = [product_id];
+      let questions = await db.client.query(queryString, values);
+      return questions.rows;
+  },
   getAnswers: async function (question_id) {
-    var queryString = 'Select * FROM answers where question_id = $1' ;
+    var queryString = 'Select answer_id, body, date, answerer_name, helpfulness FROM answers where question_id = $1' ;
     var values = [question_id];
-    let result = await db.client.query(queryString, values);
-    return result.rows;
+    let answers = await db.client.query(queryString, values);
+    return answers.rows;
   },
 
   getPhotos: async function (answer_id) {
@@ -37,7 +59,34 @@ module.exports = {
     return result;
   },
 
+  postQuestion: async function({body, name, email, product_id}) {
+    var queryString = 'INSERT INTO questions(product_id, question_body, asker_name, asker_email) VALUES ($1, $2, $3, $4)';
+    var values = [product_id, body, name, email];
+    let result = await db.client.query(queryString, values);
+    return result;
+  }
+
 };
+
+var formatAnswers = (answers, photos) => {
+  results = [];
+  for (var i = 0; i < answers.length; i ++ ) {
+    const answer = answers[i];
+    answer['photos'] = [];
+    for (var j = 0; j < photos.length; j++) {
+      var photo = photos[j];
+      if (answer.answer_id === photo.answer_id) {
+        var photos_object = {
+          id: photo.answer_id,
+          url: photo.url,
+        }
+        answer['photos'].push(photos_object);
+      }
+    }
+    results = results.concat(answer);
+  }
+  return results;
+}
 var grabPhotos = async (answers) => {
   var result = [];
   for(var i = 0; i < answers.length; i ++) {
@@ -86,7 +135,7 @@ var formatQuestions = (questions, answers, photos, product_id) => {
     results.push(question);
   }
 
-  return {product_id: product_id, results: results};
+  return results;
 }
 
 

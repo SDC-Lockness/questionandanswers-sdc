@@ -7,7 +7,7 @@ router.get('/questions', controller.qandas.getQuestions );
 //GET /qa/questions/:question_id/answers
 router.get('/questions/:question_id/answers', controller.qandas.getAnswers);
 //POST /qa/questions
-router.post('/questions', );
+router.post('/questions', controller.qandas.postQuestion);
 //POST /qa/questions/:question_id/answers
 router.post('/questions/:question_id/answers', );
 //PUT /qa/questions/:question_id/helpful

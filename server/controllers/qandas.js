@@ -4,7 +4,7 @@ module.exports = {
   //GET /qa/questions Retrieves a list of questions for a random product. This list does not include any reported questions.
   getQuestions: function (req, res) {
     const {product_id, page, count } = req.query;
-    models.qandas.getQuestions(product_id)
+    models.qandas.getFormattedQuestions(product_id, page, count)
       .then(result => res.send(result))
       .catch(err => console.log('get questions did not work, ', err));
 
@@ -12,7 +12,8 @@ module.exports = {
 
   getAnswers: function (req, res) {
     const {question_id} = req.params;
-    models.qandas.getAnswers(question_id)
+    const {page, count} = req.query;
+    models.qandas.getFormattedAnswers(question_id, page, count)
       .then(result => res.send(result))
       .catch(err => console.log('get answers did not work, ', err));
 
@@ -29,8 +30,10 @@ module.exports = {
 
 
 
-  post: function (req, res) {
-
+  postQuestion: function (req, res) {
+    models.qandas.postQuestion(req.body)
+      .then(result => res.send(result))
+      .catch(err => console.log('post questions did not work ', err))
   },
   patch: function (req, res) {
 
