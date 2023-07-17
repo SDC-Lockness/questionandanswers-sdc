@@ -64,7 +64,56 @@ module.exports = {
     var values = [product_id, body, name, email];
     let result = await db.client.query(queryString, values);
     return result;
-  }
+  },
+  postAnswer: async function(question_id, body, answerer_name, email) {
+
+    var queryString = 'INSERT INTO answers(question_id, body, date, answerer_name, answerer_email) VALUES ($1, $2, $3, $4, $5)';
+    var currentTime = Date.now();
+    var values = [question_id, body, currentTime, answerer_name, email];
+    let result = await db.client.query(queryString, values);
+    let answer_id = await db.client.query('Select max(answer_id) from answers');
+    return answer_id.rows[0];
+  },
+
+  postPhotos: async function({max}, urls) {
+
+    var queryString = 'INSERT INTO answers_photos (answer_id, url) VALUES ($1, $2)';
+    for (var i = 0; i < urls.length; i++) {
+      var photo = urls[i]
+      var values = [max, photo];
+      let result = await db.client.query(queryString, values);
+    }
+
+    return '201';
+  },
+  putHelpful: async function(question_id) {
+    var queryString = 'UPDATE questions SET question_helpfulness = question_helpfulness + 1 WHERE question_id = $1'
+    var values = [question_id];
+    var result = await db.client.query(queryString, values);
+    return result;
+  },
+
+  putReport: async function(question_id) {
+    var queryString = 'UPDATE questions SET reported = 1 WHERE question_id = $1'
+    var values = [question_id];
+    var result = await db.client.query(queryString, values);
+    return result;
+  },
+
+  putHelpfulAnswers: async function(answer_id) {
+    var queryString = 'UPDATE answers SET helpfulness = helpfulness + 1 WHERE answer_id = $1'
+    var values = [answer_id];
+    var result = await db.client.query(queryString, values);
+    return result;
+  },
+
+  putReportAnswers: async function(answer_id) {
+    var queryString = 'UPDATE answers SET reported = 1 WHERE answer_id = $1'
+    var values = [answer_id];
+    var result = await db.client.query(queryString, values);
+    return result;
+  },
+
 
 };
 
