@@ -116,23 +116,34 @@ module.exports = {
 };
 
 var formatAnswers = (answers, photos) => {
-  results = [];
-  for (var i = 0; i < answers.length; i ++ ) {
-    const answer = answers[i];
-    answer['photos'] = [];
-    for (var j = 0; j < photos.length; j++) {
-      var photo = photos[j];
-      if (answer.answer_id === photo.answer_id) {
-        var photos_object = {
-          id: photo.answer_id,
-          url: photo.url,
-        }
-        answer['photos'].push(photos_object);
-      }
+  var photoList = {};
+  for (var i = 0; i < photos.length; i++) {
+    const photo = photos[i]
+    const {id, answer_id, url} = photo;
+    const newPhotoObject = {
+      id:id,
+      url:url
+    };
+    if (answer_id in photoList) {
+      photoList[answer_id].push(newPhotoObject)
+    } else {
+      photoList[answer_id] = [newPhotoObject];
     }
-    results = results.concat(answer);
   }
-  return results;
+  for (var j = 0; j < answers.length; j ++ ) {
+    const answer = answers[j];
+    const{answer_id, body, date, answerer_name, helpfulness} = answer;
+    answers[j] = {
+      answer_id: answer_id,
+      body: body,
+      date: formatDate(date),
+      answerer_name: answerer_name,
+      helpfulness: helpfulness,
+      photos: answer_id in photoList ? photoList[answer_id] : []
+    }
+
+  }
+  return answers;
 }
 var grabPhotos = async (answers) => {
   var promises = [];
@@ -172,7 +183,6 @@ var formatQuestions = (questions, answers, photos, product_id) => {
     }
   }
   let answerList = {};
-  console.log('these are the answers to iterate through, ', answers);
   for(var j = 0; j < answers.length; j++) {
     var answersObject = answers[j];
     const {answer_id, question_id, body, date, answerer_name, helpfulness} = answersObject;
@@ -182,10 +192,10 @@ var formatQuestions = (questions, answers, photos, product_id) => {
     answerList[question_id][answer_id] = {
         id: answer_id,
         body: body,
-        date: date,
+        date: formatDate(date),
         answerer_name: answerer_name,
         helpfulness: helpfulness,
-        photos: photoList[answer_id] ? photoList[answer_id] : []
+        photos: answer_id in photoList ? photoList[answer_id] : []
     };
   }
 
