@@ -9,8 +9,7 @@ module.exports = {
 
   getFormattedQuestions: async function (product_id, page, count) {
       let questions = await this.getQuestions(product_id);
-      console.log(questions);
-      let answers = await grabAsnwers(questions);
+      let answers = await getManyAnswers(questions);
       let photos = await grabPhotos(answers);
       var results = formatQuestions(questions, answers, photos, product_id);
       page = page || 1;
@@ -23,7 +22,6 @@ module.exports = {
 
   getFormattedAnswers: async function(question_id, page, count) {
     let answers = await this.getAnswers(question_id);
-    console.log(answers);
     let photos = await grabPhotos(answers);
     let results = formatAnswers(answers, photos);
     page = page || 1;
@@ -45,7 +43,7 @@ module.exports = {
       return questions.rows;
   },
   getAnswers: async function (question_id) {
-    var queryString = 'Select answer_id, body, date, answerer_name, helpfulness FROM answers where question_id = $1' ;
+    var queryString = 'Select answer_id, question_id, body, date, answerer_name, helpfulness FROM answers where reported=0 AND question_id = $1' ;
     var values = [question_id];
     let answers = await db.client.query(queryString, values);
     return answers.rows;
@@ -137,56 +135,23 @@ var formatAnswers = (answers, photos) => {
   return results;
 }
 var grabPhotos = async (answers) => {
-  var result = [];
+  var promises = [];
   for(var i = 0; i < answers.length; i ++) {
     var answer_id = answers[i].answer_id;
-    var photos = await module.exports.getPhotos(answer_id);
-    result = result.concat(photos);
+    promises.push(module.exports.getPhotos(answer_id));
   }
-  return result;
+  var result = await Promise.all(promises);
+  return result.flat();
 }
-var grabAsnwers = async (questions) => {
-  var results = [];
+var getManyAnswers =  async (questions) => {
+  var promises = [];
   for(var i = 0; i < questions.length; i++) {
     var question_id = questions[i].question_id;
-    results = results.concat(await module.exports.getAnswers(question_id));
+    promises.push(module.exports.getAnswers(question_id))
   }
-  return results;
+  var results = await Promise.all(promises)
+  return results.flat();
 }
-var formatQuestions = (questions, answers, photos, product_id) => {
-  var results = [];
-  // go through each object
-  for (var i = 0; i < questions.length; i ++ ) {
-    var question = questions[i];
-    question['question_date'] = formatDate(question.question_date);
-    question['reported'] = question.reported ? true: false;
-    question['answers'] = {}
-    for(var j = 0; j < answers.length; j ++ ) {
-
-      if (answers[i].question_id === question.question_id) {
-        var answer_id = Number(answers[i].answer_id);
-        question['answers'][answer_id] = {
-          id: answers[i].answer_id,
-          body:answers[i].body,
-          date: formatDate(answers[i].date),
-          answerer_name:answers[i].answerer_name,
-          helpfulness: answers[i].helpful,
-          photos: []
-        }
-        for (var k = 0; k < photos.length; k++) {
-          if(photos[i].answer_id === answers[i].answer_id) {
-            question['answers'][answer_id]['photos'].push(photos[i]['url']);
-          }
-        }
-      }
-
-    }
-    results.push(question);
-  }
-
-  return results;
-}
-
 
 const formatDate = (date) => {
   if(date.includes('-')) {
@@ -195,59 +160,41 @@ const formatDate = (date) => {
   const dateObject = new Date(Number(date));
   return dateObject.toISOString();
 }
-  //   if (!results[question.question_id]) {
-  //     const questionDateObject = new Date(Number(question.question_date));
-  //     const answerDateObject = new Date(Number(question.date));
-  //     const answer_id = question.answer_id.toString();
-  //     results[question.question_id] = {
-  //       question_id: question.question_id,
-  //       question_body: question.question_body,
-  //       question_date: questionDateObject.toISOString(),
-  //       asker_name: question.asker_name,
-  //       question_helpfulness: question.question_helpfulness,
-  //       reported: question.reported ? true: false,
-  //     }
-  //     results[question.question_id]['answers'] = {};
-  //     results[question.question_id]['answers'][answer_id] = {
-  //       id: question.answer_id,
-  //       body: question.body,
-  //       date: answerDateObject.toISOString(),
-  //       answerer_name: question.answerer_name,
-  //       helpful: question.helpful,
-  //       photos: [
-  //         question.url
-  //       ]
-  //     }
-  //   } else {
-  //     const answerDateObject = new Date(Number(question.date));
-  //     let currentAnswers = results[question.question_id]['answers']
-  //     if (!currentAnswers[question.answer_id]) {
-  //       currentAnswers[question.answer_id] = {
-  //         id: question.answer_id,
-  //         body: question.body,
-  //         date: answerDateObject.toISOString(),
-  //         answerer_name: question.answerer_name,
-  //         helpful: question.helpful,
-  //         photos: [
-  //           question.url
-  //         ]
-  //       }
-  //     } else {
-  //       let currentAnswer = currentAnswers[question.answer_id];
-  //       currentAnswer['photos'].push(question.url);
-  //     }
-  //   }
-  // }
 
-  // object that has question_id as keys and the object as value;
-  // copy down the question_id, question_date,..., if answers does not exist
+var formatQuestions = (questions, answers, photos, product_id) => {
+  let photoList = {};
+  for(var i = 0; i < photos.length; i++) {
+    var photoObject = photos[i];
+    if (photoObject.answer_id in photoList) {
+      photoList[photoObject.answer_id].push(photoObject.url)
+    } else {
+      photoList[photoObject.answer_id] = [photoObject.url];
+    }
+  }
+  let answerList = {};
+  console.log('these are the answers to iterate through, ', answers);
+  for(var j = 0; j < answers.length; j++) {
+    var answersObject = answers[j];
+    const {answer_id, question_id, body, date, answerer_name, helpfulness} = answersObject;
+    if (!(question_id in answerList)) {
+      answerList[question_id] = {};
+    }
+    answerList[question_id][answer_id] = {
+        id: answer_id,
+        body: body,
+        date: date,
+        answerer_name: answerer_name,
+        helpfulness: helpfulness,
+        photos: photoList[answer_id] ? photoList[answer_id] : []
+    };
+  }
 
-  // create an answers : with an object that makes key the id and the values an object with
-   // if it does exist move on to answers by creating an object with the answer info
-  // and setting it to the answer_id
-  // answer_id (renamed to id) helpful, if no photos exist create a photos array and push the photos url.
-  // if phoots does exist then push the url
-
-
-  // get the values of the resulting array
-  // send back with product id and results attribute
+  for(var k = 0; k < questions.length; k++) {
+    var question = questions[k];
+    const {question_id, question_date} = question;
+    question["question_date"] = formatDate(question_date);
+    question["reported"] = false;
+    question['answers'] = question_id in answerList ? answerList[question_id]: {};
+  }
+  return questions;
+}
