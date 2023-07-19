@@ -2,7 +2,6 @@
 const fs = require('fs')
 const path = require('path')
 const { Pool, Client} = require('pg')
-const config = require('./config.json')
 require('dotenv').config();
 
 // inputfile & target table
@@ -12,11 +11,11 @@ var answersFile = '/Users/oscarcarvente/Desktop/qandadata/answers.csv';
 var photosFile = '/Users/oscarcarvente/Desktop/qandadata/answers_photos.csv';
 
 // Getting connectin parameters from config.json
-const host = PROCESS.ENV.HOST;
-const user = PROCESS.ENV.USER;
-const pw = PROCESS.ENV.PW;
-const db = PROCESS.ENV.DB;
-const port = PROCESS.ENV.PORT;
+const host = process.env.HOST;
+const user = process.env.USER;
+const pw = process.env.PW;
+const db = process.env.DB;
+const port = process.env.DBPORT;
 const conString = `postgres://${user}:${pw}@${host}:${port}/${db}`;
 
 // Connecting to Database
