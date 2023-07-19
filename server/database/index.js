@@ -27,23 +27,16 @@ client.connect()
 
 // Execute Copy Function
  async function res() {
-  // console.log()
-  // await client.query('DROP TABLE IF EXISTS product cascade');
-  // await client.query('CREATE TABLE product (id int serial primary key, name varchar(200), slogan text, description text, category varchar(200), default_price int)');
+  // await client.query('CREATE TABLE IF NOT EXISTS product (id serial primary key, name varchar(200), slogan text, description text, category varchar(200), default_price int)');
   // await client.query(`COPY product (id,name,slogan,description,category,default_price)FROM '${productFile}' DELIMITER ','
   // CSV HEADER`);
-  // await client.query('DROP TABLE IF EXISTS questions cascade');
-  // await client.query('CREATE TABLE questions (question_id int primary key, product_id int references product (id), question_body text, question_date bigint, asker_name varchar(200), asker_email varchar(200), reported int, question_helpfulness int)');
+  // await client.query('CREATE TABLE IF NOT EXISTS questions (question_id serial primary key, product_id int references product (id), question_body text, question_date bigint, asker_name varchar(200), asker_email varchar(200), reported int NOT NULL DEFAULT 0, question_helpfulness int NOT NULL DEFAULT 0)');
   // await client.query(`COPY questions (question_id,product_id,question_body,question_date,asker_name, asker_email, reported, question_helpfulness)FROM '${questionsFile}' DELIMITER ','
   // CSV HEADER`);
-  // console.log(answersFile);
-  // await client.query('DROP TABLE IF EXISTS answers cascade');
-  // await client.query('CREATE TABLE answers (answer_id int serial primary key, question_id int references questions (question_id), body text, date bigint, answerer_name varchar(200), answerer_email varchar(200), reported int, helpfulness int)');
+  // await client.query('CREATE TABLE IF NOT EXISTS answers (answer_id serial primary key, question_id int references questions (question_id), body text, date bigint, answerer_name varchar(200), answerer_email varchar(200), reported int NOT NULL DEFAULT 0, helpfulness int NOT NULL DEFAULT 0)');
   // await client.query(`COPY answers (answer_id, question_id, body,date, answerer_name, answerer_email, reported, helpfulness)FROM '${answersFile}' DELIMITER ','
   // CSV HEADER`);
-  // console.log(photosFile);
-  // await client.query('DROP TABLE IF EXISTS answers_photos cascade');
-  // await client.query('CREATE TABLE answers_photos (id int serial primary key, answer_id int references answers (id), url text)');
+  // await client.query('CREATE TABLE IF NOT EXISTS answers_photos (id serial primary key, answer_id int references answers (answer_id), url text)');
   // await client.query(`COPY answers_photos (id, answer_id, url)FROM '${photosFile}' DELIMITER ','
   // CSV HEADER`);
   return 'finished';
