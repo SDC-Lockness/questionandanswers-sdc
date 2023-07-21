@@ -4,7 +4,6 @@ module.exports = {
   //GET /qa/questions Retrieves a list of questions for a random product. This list does not include any reported questions.
   getQuestions: function (req, res) {
     const {product_id, page, count } = req.query;
-    console.log('we here, ', req.query);
     models.qandas.getFormattedQuestions(product_id, page, count)
       .then(result => res.send(result))
       .catch(err => res.status(400).send(err));
