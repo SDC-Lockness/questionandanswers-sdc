@@ -58,8 +58,9 @@ module.exports = {
   },
 
   postQuestion: async function({body, name, email, product_id}) {
-    var queryString = 'INSERT INTO questions(product_id, question_body, asker_name, asker_email) VALUES ($1, $2, $3, $4)';
-    var values = [product_id, body, name, email];
+    var queryString = 'INSERT INTO questions(product_id, question_body, question_date, asker_name, asker_email) VALUES ($1, $2, $3, $4, $5)';
+    var currentTime = Date.now();
+    var values = [product_id, body, currentTime, name, email];
     let result = await db.client.query(queryString, values);
     return result;
   },
