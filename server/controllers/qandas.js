@@ -6,7 +6,7 @@ module.exports = {
     const {product_id, page, count } = req.query;
     models.qandas.getFormattedQuestions(product_id, page, count)
       .then(result => res.send(result))
-      .catch(err => res.setStatus(400).send(err));
+      .catch(err => res.status(400).send(err));
 
   },
 
