@@ -8,7 +8,8 @@ module.exports = {
   },
 
   getFormattedQuestions: async function (product_id, page, count) {
-      let questions = await this.getQuestions(product_id);
+    console.log('here, ',  product_id);
+      let questions = await this.getQuestions(product_id, page,count);
       let answers = await getManyAnswers(questions);
       let photos = await grabPhotos(answers);
       var results = formatQuestions(questions, answers, photos, product_id);
@@ -21,7 +22,7 @@ module.exports = {
   },
 
   getFormattedAnswers: async function(question_id, page, count) {
-    let answers = await this.getAnswers(question_id);
+    let answers = await this.getAnswers(question_id, page, count);
     let photos = await grabPhotos(answers);
     let results = formatAnswers(answers, photos);
     page = page || 1;
@@ -35,11 +36,12 @@ module.exports = {
     }
   },
 
-  getQuestions: async function (product_id)  {
-    var queryString = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness, reported FROM questions WHERE reported=0 AND product_id = $1';
+  getQuestions: async function (product_id, page, count )  {
+    var queryString = 'SELECT question_id, question_body, question_date, asker_name, question_helpfulness, reported FROM questions WHERE reported=0 AND product_id = $1 LIMIT $2 OFFSET $3';
       //Execution Time: 2119.579 ms
-      var values = [product_id];
+      var values = [product_id, count, (page*count - count)];
       let questions = await db.client.query(queryString, values);
+      console.log('questions retrieved, ', questions);
       return questions.rows;
   },
   getAnswers: async function (question_id) {
