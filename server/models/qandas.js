@@ -13,10 +13,6 @@ module.exports = {
       let answers = await getManyAnswers(questions);
       let photos = await grabPhotos(answers);
       var results = formatQuestions(questions, answers, photos, product_id);
-      page = page || 1;
-      count = count || 5;
-      results = results.slice((page-1)*count,page*count);
-
       return {product_id: product_id, results: results};
 
   },
