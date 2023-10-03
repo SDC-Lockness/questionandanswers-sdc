@@ -18,4 +18,15 @@ This microservice powers the Q&A section of our e-commerce platform. Improved da
 )
 
 [DB, system testing](https://docs.google.com/document/d/10lrffbcBamJub9XkEBfo6X5LiSyyQ5jUqEZVHr7twxo/edit)
-   
+
+| HTTP Method | Route                                      | Description                         |
+|-------------|--------------------------------------------|-------------------------------------|
+| GET         | /qa/questions                              | Get all questions                    |
+| GET         | /qa/questions/:question_id/answers         | Get answers for a specific question  |
+| POST        | /qa/questions                              | Post a new question                  |
+| POST        | /qa/questions/:question_id/answers         | Post an answer for a specific question |
+| PUT         | /qa/questions/:question_id/helpful         | Mark a question as helpful           |
+| PUT         | /qa/questions/:question_id/report          | Report a question                    |
+| PUT         | /answers/:answer_id/helpful                | Mark an answer as helpful            |
+| PUT         | /answers/:answer_id/report                 | Report an answer                     |
+
